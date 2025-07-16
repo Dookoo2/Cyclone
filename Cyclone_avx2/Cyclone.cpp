@@ -48,6 +48,20 @@ static inline std::string bytesToHex(const uint8_t* data, size_t len)
     return out;
 }
 
+static void writeFoundKey(const std::string& privHex,
+                          const std::string& pubHex,
+                          const std::string& wif,
+                          const std::string& address)
+{
+    std::ofstream ofs("found_keys.txt", std::ios::app);
+    if (!ofs) {
+        std::cerr << "Cannot open found_keys.txt for writing\n";
+        return;
+    }
+    ofs << privHex << ' ' << pubHex << ' ' << wif << ' ' << address << '\n';
+}
+
+
 static void appendCandidateToFile(const std::string& privHex,
                                   const std::string& pubHex,
                                   const std::string& hash160Hex)
@@ -696,6 +710,8 @@ int main(int argc, char* argv[])
         std::cout<<"\nNo match found.\n";
         return 0;
     }
+    writeFoundKey(foundPriv, foundPub, foundWIF, targetAddress);
+
     std::cout<<"================== FOUND MATCH! ==================\n"
              <<"Private Key   : "<<foundPriv<<"\n"
              <<"Public Key    : "<<foundPub<<"\n"
