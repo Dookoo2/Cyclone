@@ -28,7 +28,7 @@
 
 //------------------------------------------------------------------------------
 // Batch size: ±256 public keys (512), hashed in groups of 16 (AVX512).
-static constexpr int POINTS_BATCH_SIZE = 512;
+static constexpr int POINTS_BATCH_SIZE = 256;
 static constexpr int HASH_BATCH_SIZE   = 16;
 
 // Status output and progress saving frequency
@@ -47,6 +47,19 @@ void saveProgressToFile(const std::string &progressStr)
     } else {
         std::cerr << "Cannot open progress.txt for writing\n";
     }
+}
+
+static void writeFoundKey(const std::string& privHex,
+                          const std::string& pubHex,
+                          const std::string& wif,
+                          const std::string& address)
+{
+    std::ofstream ofs("found_keys.txt", std::ios::app);
+    if (!ofs) {
+        std::cerr << "Cannot open found_keys.txt for writing\n";
+        return;
+    }
+    ofs << privHex << ' ' << pubHex << ' ' << wif << ' ' << address << '\n';
 }
 
 //------------------------------------------------------------------------------
@@ -705,6 +718,8 @@ int main(int argc, char* argv[])
         std::cout << "Speed         : " << mkeysPerSec << " Mkeys/s\n";
         return 0;
     }
+    
+    writeFoundKey(foundPrivateKeyHex, foundPublicKeyHex, foundWIF, targetAddress);  
 
     // If the key was found
     std::cout << "================== FOUND MATCH! ==================\n";
